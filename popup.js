@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   );
 
 async function getAccuracy(sentence) {
-  const response = await fetch("http://45.63.18.15:5000/api/accuracy", {
+  const response = await fetch("http://localhost:5000/api/accuracy", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sentence })
@@ -49,7 +49,7 @@ async function getAccuracy(sentence) {
 }
 
 async function getInsight(sentence, accuracy) {
-  const response = await fetch("http://45.63.18.15:5000/api/insight", {
+  const response = await fetch("http://localhost:5000/api/insight", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sentence, accuracy })
