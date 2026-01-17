@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Text Fact-Checker",
+  "name": "Fact-Checker",
   "version": "1.0",
   "description": "Checks if highlighted text is true or misinforming.",
   "permissions": ["storage", "contextMenus", "scripting", "tabs"],
