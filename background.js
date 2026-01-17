@@ -6,19 +6,12 @@
 const GEMINI_API_KEY = "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";
 const OPENAI_API_KEY = "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";
 
-chrome.runtime.sendMessage(
-  { action: "factCheck", text: selection },
-  (response) => {
-    console.log("Background response:", response);
-
-    if (!response || response.error) {
-      updateUI(100, "Analysis failed");
-      return;
-    }
-
-    updateUI(response.score, response.verdict);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "factCheck") {
+    runMultiModelCheck(request.text).then(sendResponse);
+    return true; // Required to keep the message channel open for async
   }
-);
+});
 
 async function runMultiModelCheck(text) {
   const prompt = `Analyze this claim: "${text}". 
@@ -45,8 +38,11 @@ async function runMultiModelCheck(text) {
     return { score: avgScore, verdict: finalVerdict };
 
   } catch (error) {
-    return { error: error.message };
-  }
+  return {
+    score: 100,
+    verdict: "Unable to verify claim"
+  };
+}
 }
 
 async function callGemini(prompt) {
