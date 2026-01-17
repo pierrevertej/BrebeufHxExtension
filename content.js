@@ -73,6 +73,7 @@ document.addEventListener("mouseup", (e) => {
 
   // Trigger Fact Check on Click
   bubble.onclick = (event) => {
+  debugger;
   event.stopPropagation(); // Prevents the click from "falling through" to the page
   
   console.log("Bubble clicked!"); // Check if this appears in the main F12 console
