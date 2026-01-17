@@ -66,23 +66,19 @@ document.addEventListener("mouseup", (e) => {
   bubble.innerHTML = `<div class="label">🔍 Analyze Claim</div>`;
 
   // Trigger Fact Check on Click
-  bubble.onclick = () => {
-    bubble.innerHTML = `
-      <div class="label">Analyzing...</div>
-      <div class="meter-bg"><div id="meter-fill"></div></div>
-      <div class="status" id="status-text">Calling AI Models...</div>
-    `;
-
-    // Send text to background.js
-    chrome.runtime.sendMessage({ action: "factCheck", text: selection }, (response) => {
-      if (response && response.error) {
-        shadow.getElementById("status-text").innerText = "Error: " + response.error;
-      } else {
-        updateUI(response.score, response.verdict);
-      }
-    });
-  };
-});
+bubble.onclick = (event) => {
+  event.stopPropagation(); // Prevents the click from "falling through" to the page
+  
+  console.log("Bubble clicked!"); // Check if this appears in the main F12 console
+  
+  chrome.runtime.sendMessage({ action: "factCheck", text: selection }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error("Connection Error:", chrome.runtime.lastError.message);
+      return;
+    }
+    updateUI(response.score, response.verdict);
+  });
+};
 
 function updateUI(score, verdict) {
   const fill = shadow.getElementById("meter-fill");
