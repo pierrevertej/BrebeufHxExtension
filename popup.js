@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const meterContainer = document.getElementById("meter-container");
   const meterFill = document.getElementById("meter-fill");
   const voiceBtn = document.getElementById("voiceBtn");
+  const LISTEN_LABEL = "\u{1F50A} Listen";
 
   // State
   let lastScore = null;
@@ -161,55 +162,64 @@ async function getInsight(sentence, accuracy) {
     voiceBtn.classList.remove("hidden");
     voiceBtn.disabled = false;
   });
+    const audioPlayer = document.getElementById("ttsPlayer");
 
-  voiceBtn.addEventListener("click", async () => {
-    if (!insightsDiv.textContent) return;
+voiceBtn.addEventListener("click", async () => {
+  if (!insightsDiv.textContent) return;
 
-    voiceBtn.disabled = true;
-    voiceBtn.textContent = "Playing...";
+  voiceBtn.disabled = true;
+  voiceBtn.textContent = "Playing...";
+  voiceBtn.textContent = LISTEN_LABEL;
 
-    try {
-      const API_KEY = "sk_4aecdfc1033414a9cffea1649a2023a201764f4afbf9662d"; 
-      const VOICE_ID = "8IbUB2LiiCZ85IJAHNnZ";
+  try {
+    const API_KEY = "YOUR_ELEVENLABS_KEY";
+    const VOICE_ID = "8IbUB2LiiCZ85IJAHNnZ";
 
-      const response = await fetch(
-  `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "audio/mpeg",
-      "xi-api-key": API_KEY
-    },
-    body: JSON.stringify({
-      text: insightsDiv.textContent,
-      model_id: "eleven_monolingual_v1",
-      voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.75
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "audio/mpeg",
+          "xi-api-key": API_KEY
+        },
+        body: JSON.stringify({
+          text: insightsDiv.textContent,
+          model_id: "eleven_monolingual_v1",
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.75
+          }
+        })
       }
-    })
-  }
-);
+    );
 
-if (!response.ok) {
-  const err = await response.text();
-  throw new Error(err);
-}
-
-const audioBlob = await response.blob();
-const audioURL = URL.createObjectURL(audioBlob);
-const audio = new Audio(audioURL);
-audio.play();
-
-      audio.onended = () => {
-        voiceBtn.disabled = false;
-        voiceBtn.textContent = "Listen";
-      };
-
-    } catch (err) {
-      voiceBtn.disabled = false;
-      voiceBtn.textContent = "Listen";
+    if (!response.ok) {
+      throw new Error(await response.text());
     }
-  });
+
+    const audioBlob = await response.blob();
+
+    if (audioBlob.size < 1000) {
+      throw new Error("Invalid audio received");
+    }
+
+    const audioURL = URL.createObjectURL(audioBlob);
+
+    audioPlayer.src = audioURL;
+    audioPlayer.onended = () => {
+      voiceBtn.disabled = false;
+      voiceBtn.textContent = LISTEN_LABEL;
+      URL.revokeObjectURL(audioURL);
+    };
+
+    await audioPlayer.play();
+
+  } catch (err) {
+    console.error("TTS failed:", err);
+    voiceBtn.disabled = false;
+    voiceBtn.textContent = LISTEN_LABEL;
+  }
+});
 });
