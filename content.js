@@ -96,6 +96,7 @@ document.addEventListener("mouseup", (e) => {
     }
   );
 };
+});
 
 function updateUI(score, verdict) {
   const fill = shadow.getElementById("meter-fill");
