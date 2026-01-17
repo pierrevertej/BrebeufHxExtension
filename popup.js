@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // State
   let lastScore = null;
+  let lastVerdict = null;
   let insightsVisible = false;
 
   // Initialize buttons
@@ -82,6 +83,7 @@ async function getInsight(sentence, accuracy) {
     resultDiv.textContent = `${verdict} (${score} inaccuracy score)`;
 
     lastScore = score;
+    lastVerdict = verdict;
     insightsBtn.disabled = false;
 
     // Show meter
