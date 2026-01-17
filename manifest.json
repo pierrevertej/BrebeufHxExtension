@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "FactCheck Bubble",
+  "version": "1.0",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://factchecktools.googleapis.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
