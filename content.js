@@ -12,6 +12,7 @@ const style = document.createElement("style");
 style.textContent = `
   #bubble {
     position: fixed;
+    pointer-events: auto;
     background: #ffffff;
     color: #333;
     padding: 12px;
