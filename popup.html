@@ -3,17 +3,66 @@
   <head>
     <title>Fact-Checker</title>
     <style>
-      body { font-family: sans-serif; width: 250px; padding: 10px; }
-      #selection { border: 1px solid #ccc; padding: 5px; min-height: 40px; margin-bottom: 10px; }
-      button { padding: 6px 12px; cursor: pointer; }
-      #result { margin-top: 10px; font-weight: bold; }
-    </style>
+  body {
+    font-family: sans-serif;
+    width: 260px;
+    padding: 10px;
+  }
+
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+    resize: none;
+  }
+
+  .selection-box {
+    font-size: 12px;
+    color: #555;
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    padding: 6px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  button {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+
+  #result {
+    font-weight: bold;
+    text-align: center;
+  }
+</style>
   </head>
   <body>
-    <div id="selection">Loading selection...</div>
-    <button id="checkBtn">Fact-Check</button>
-    <div id="result"></div>
+  <!-- Manual input -->
+  <textarea
+    id="manualInput"
+    placeholder="Type a statement to fact-check"
+    rows="3"
+  ></textarea>
 
-    <script src="popup.js"></script>
-  </body>
+  <!-- Highlighted text (secondary, read-only) -->
+  <div id="selection" class="selection-box hidden"></div>
+
+  <!-- Action -->
+  <button id="checkBtn">Fact Check</button>
+  <button id="insightsBtn">Insights</button>
+  <div id="result"></div>
+  <div id="insights" class="hidden"></div>
+
+  <!-- Result -->
+  <div id="result"></div>
+
+  <script src="popup.js"></script>
+</body>
 </html>

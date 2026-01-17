@@ -1,7 +1,7 @@
+document.addEventListener("mouseup", () => {
+  const text = window.getSelection().toString().trim();
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "getSelection") {
-    const selection = window.getSelection().toString().trim();
-    sendResponse({ text: selection });
+  if (text) {
+    chrome.storage.session.set({ lastSelection: text });
   }
 });
