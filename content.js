@@ -66,7 +66,7 @@ document.addEventListener("mouseup", (e) => {
   bubble.innerHTML = `<div class="label">🔍 Analyze Claim</div>`;
 
   // Trigger Fact Check on Click
-bubble.onclick = (event) => {
+  bubble.onclick = (event) => {
   event.stopPropagation(); // Prevents the click from "falling through" to the page
   
   console.log("Bubble clicked!"); // Check if this appears in the main F12 console
@@ -79,6 +79,7 @@ bubble.onclick = (event) => {
     updateUI(response.score, response.verdict);
   });
 };
+});
 
 function updateUI(score, verdict) {
   const fill = shadow.getElementById("meter-fill");
