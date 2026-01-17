@@ -73,7 +73,11 @@ document.addEventListener("mouseup", (e) => {
 
   bubble.style.top = `${e.clientY + 10}px`;
   bubble.style.left = `${e.clientX}px`;
-  bubble.innerHTML = `<div class="label">🔍 Analyze Claim</div>`;
+  bubble.innerHTML = `<div class="label">🔍 Analyze Claim</div>
+                        <div class="meter-bg">
+                        <div id="meter-fill"></div>
+                      </div>
+                      <div id="status-text" class="status"></div>`;
 
   // Trigger Fact Check on Click
   bubble.onclick = (event) => {
