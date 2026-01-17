@@ -51,6 +51,9 @@ shadow.appendChild(style);
 document.body.appendChild(container);
 
 document.addEventListener("mouseup", (e) => {
+  if (e.composedPath().some(el => el?.id === "bubble")) {
+    return;
+  }
   const selection = window.getSelection().toString().trim();
   
   // Remove bubble if clicking away
