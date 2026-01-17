@@ -19,7 +19,7 @@ style.textContent = `
     border-radius: 12px;
     cursor: pointer;
     font-family: system-ui, -apple-system, sans-serif;
-    z-index: 2147483649;
+    z-index: 2147483647;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     border: 1px solid #ddd;
     width: 180px;
@@ -74,7 +74,6 @@ document.addEventListener("mouseup", (e) => {
 
   // Trigger Fact Check on Click
   bubble.onclick = (event) => {
-  debugger;
   event.stopPropagation(); // Prevents the click from "falling through" to the page
   
   console.log("Bubble clicked!"); // Check if this appears in the main F12 console
