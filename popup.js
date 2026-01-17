@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  // DOM elements
   const selectionDiv = document.getElementById("selection");
   const manualInput = document.getElementById("manualInput");
   const resultDiv = document.getElementById("result");
@@ -12,7 +11,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // State
   let lastScore = null;
-  let lastVerdict = null;
   let insightsVisible = false;
 
   // Initialize buttons
@@ -40,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   );
 
 async function getAccuracy(sentence) {
-  const response = await fetch("http://localhost:5000/api/accuracy", {
+  const response = await fetch("http://45.63.18.15:5000/api/accuracy", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sentence })
@@ -51,7 +49,7 @@ async function getAccuracy(sentence) {
 }
 
 async function getInsight(sentence, accuracy) {
-  const response = await fetch("http://localhost:5000/api/insight", {
+  const response = await fetch("http://45.63.18.15:5000/api/insight", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sentence, accuracy })
@@ -61,7 +59,7 @@ async function getInsight(sentence, accuracy) {
   return data.insight;
 }
 
-  // Central Fact Check function
+  // Fact Check function
   async function runFactCheck() {
   const textToCheck = selectionDiv.dataset.selection || manualInput.value.trim();
   if (!textToCheck) {
@@ -74,7 +72,7 @@ async function getInsight(sentence, accuracy) {
   meterFill.style.width = "0%";
 
   try {
-    const score = await getAccuracy(textToCheck);   // ✅ await
+    const score = await getAccuracy(textToCheck);   
 
     const verdict =
       score < 30 ? "Likely True" :
@@ -84,7 +82,6 @@ async function getInsight(sentence, accuracy) {
     resultDiv.textContent = `${verdict} (${score} inaccuracy score)`;
 
     lastScore = score;
-    lastVerdict = verdict;
     insightsBtn.disabled = false;
 
     // Show meter
@@ -95,7 +92,7 @@ async function getInsight(sentence, accuracy) {
     meterFill.style.width = "0%";
     void meterFill.offsetWidth;
 
-    // Special case: -1 (Not a factual statement)
+    // Special case: -1 (Not a statement)
     if (score === -1) {
       meterFill.style.width = "100%";
       meterFill.style.background = "#000"; // Black
@@ -109,7 +106,7 @@ async function getInsight(sentence, accuracy) {
       else meterFill.style.background = "#ea4335"; 
     }
 
-    // Hide previous insights and voice button
+    // Hide insights and voice button
     insightsDiv.classList.add("hidden");
     insightsDiv.textContent = "";
     insightsVisible = false;
@@ -120,7 +117,7 @@ async function getInsight(sentence, accuracy) {
 
     } catch (err) {
     console.error(err);
-    resultDiv.textContent = "Backend error. Is Flask running?";
+    resultDiv.textContent = "Backend error. Flask running?";
     return false;
     }
   }
@@ -132,7 +129,7 @@ async function getInsight(sentence, accuracy) {
 
   checkBtn.addEventListener("click", () => runFactCheck());
 
-  // ------------------ Insights Button ------------------
+  // Insights Button 
   insightsBtn.addEventListener("click", async () => {
     if (insightsVisible) {
       // Toggle off
@@ -158,7 +155,6 @@ async function getInsight(sentence, accuracy) {
 
     const textToCheck = selectionDiv.dataset.selection || manualInput.value.trim();
 
-    // MOCK explanation
     try {
       const explanation = await getInsight(textToCheck, lastScore);
       insightsDiv.textContent = explanation;
@@ -172,7 +168,7 @@ async function getInsight(sentence, accuracy) {
     voiceBtn.disabled = false;
   });
 
-  // ------------------ Voice Button ------------------
+  // Voice Button 
   voiceBtn.addEventListener("click", async () => {
     if (!insightsDiv.textContent) return;
 

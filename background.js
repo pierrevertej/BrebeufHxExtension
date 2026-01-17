@@ -3,26 +3,25 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "factCheckSelection",
     title: "Fact-Check This",
-    contexts: ["selection"] // only shows when text is selected
+    contexts: ["selection"] // only shows when txt is selected
   });
 });
 
-// Handle right-click context menu clicks
+// Handle right-click menu clicks
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "factCheckSelection") {
-    const selectedText = info.selectionText; // text user highlighted
+    const selectedText = info.selectionText; // highlighted txt
 
-    // Option 1: Open popup with prefilled text
+    // Open popup with prefilled txt
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: (text) => {
-        // Save selected text in window for popup.js to read
+        // Save selected txt in window 
         window.__FACTCHECK_SELECTION__ = text;
       },
       args: [selectedText]
     });
 
-    // Open the extension popup programmatically (or just focus it)
     chrome.action.openPopup();
   }
 });
