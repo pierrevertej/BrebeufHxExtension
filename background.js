@@ -7,10 +7,27 @@ const GEMINI_API_KEY = "sk-or-v1-ec6da0d5029d4e11e64ab6d33646a2ba5ce891acda5ec66
 const OPENAI_API_KEY = "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";
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "factCheck") {
-    runMultiModelCheck(request.text).then(sendResponse);
-    return true; // Required to keep the message channel open for async
-  }
+  if (request.action !== "factCheck") return;
+
+  (async () => {
+    try {
+      const result = await runMultiModelCheck(request.text);
+
+      // Guarantee response shape
+      sendResponse({
+        score: Number(result.score) || 100,
+        verdict: result.verdict || "Unable to verify claim"
+      });
+    } catch (err) {
+      console.error("Background failure:", err);
+      sendResponse({
+        score: 100,
+        verdict: "Analysis failed"
+      });
+    }
+  })();
+
+  return true; // keep channel open
 });
 
 async function runMultiModelCheck(text) {
