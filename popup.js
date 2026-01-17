@@ -36,60 +36,88 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   );
 
+async function getAccuracy(sentence) {
+  const response = await fetch("http://localhost:5000/api/accuracy", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sentence })
+  });
+
+  const data = await response.json();
+  return data.accuracy;
+}
+
+async function getInsight(sentence, accuracy) {
+  const response = await fetch("http://localhost:5000/api/insight", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sentence, accuracy })
+  });
+
+  const data = await response.json();
+  return data.insight;
+}
+
   // Central Fact Check function
   async function runFactCheck() {
-    const textToCheck = selectionDiv.dataset.selection || manualInput.value.trim();
-    if (!textToCheck) {
-      resultDiv.textContent = "Please select text or type a statement.";
-      return false; // failed
-    }
+  const textToCheck = selectionDiv.dataset.selection || manualInput.value.trim();
+  if (!textToCheck) {
+    resultDiv.textContent = "Please select text or type a statement.";
+    return false;
+  }
 
-    // Show analyzing message
-    resultDiv.textContent = "Analyzing . . .";
+  resultDiv.textContent = "Analyzing . . .";
+  meterContainer.classList.add("hidden");
+  meterFill.style.width = "0%";
 
-    // Hide meter during analysis
-    meterContainer.classList.add("hidden");
-    meterFill.style.width = "0%";
+  try {
+    const score = await getAccuracy(textToCheck);   // ✅ await
 
-    // Simulate backend/API delay
-    await new Promise(r => setTimeout(r, 600));
-
-    // MOCK score and verdict
-    const score = Math.floor(Math.random() * 101);
     const verdict =
       score < 30 ? "Likely True" :
       score < 70 ? "Uncertain" :
       "Likely False";
 
-    // Update result
     resultDiv.textContent = `${verdict} (${score} inaccuracy score)`;
 
-    // Save for Insights
     lastScore = score;
     lastVerdict = verdict;
-
-    // Enable Insights button
     insightsBtn.disabled = false;
 
-    // Show meter container
-    meterContainer.style.display = "block";
-    meterFill.style.width = "0%";       
-    void meterFill.offsetWidth;
-    
-    // Update meter
+    // Show meter
     meterContainer.classList.remove("hidden");
-    meterFill.style.width = `${score}%`;
-    if (score < 30) meterFill.style.background = "#34a853";      // Green
-    else if (score < 70) meterFill.style.background = "#fbbc05"; // Yellow
-    else meterFill.style.background = "#ea4335";                 // Red
+    meterContainer.style.display = "block";
 
-    // Hide previous insights
+    // Reset animation
+    meterFill.style.width = "0%";
+    void meterFill.offsetWidth;
+
+    // Special case: -1 (Not a factual statement)
+    if (score === -1) {
+      meterFill.style.width = "100%";
+      meterFill.style.background = "#000"; // Black
+      resultDiv.textContent = "Not a factual statement (N/A)";
+    } 
+    else {
+      meterFill.style.width = `${score}%`;
+
+      if (score < 30) meterFill.style.background = "#34a853";      // Green
+      else if (score < 70) meterFill.style.background = "#fbbc05"; // Yellow
+      else meterFill.style.background = "#ea4335"; 
+    }
+
     insightsDiv.classList.add("hidden");
-    insightsDiv.textContent = "";
     insightsVisible = false;
 
     return true;
+
+  } catch (err) {
+    console.error(err);
+    resultDiv.textContent = "Backend error. Is Flask running?";
+    return false;
   }
+}
+
 
   // Fact Check button
   checkBtn.addEventListener("click", () => runFactCheck());
@@ -118,11 +146,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     await new Promise(r => setTimeout(r, 100));
 
     // MOCK explanation based on score
-    let explanation = "";
-    if (lastScore < 30) explanation = "The statement appears mostly accurate based on AI analysis.";
-    else if (lastScore < 70) explanation = "The statement contains some uncertain claims; verify sources.";
-    else explanation = "The statement is likely false or misleading.";
+    const textToCheck = selectionDiv.dataset.selection || manualInput.value.trim();
 
-    insightsDiv.textContent = explanation;
+    try {
+      const explanation = await getInsight(textToCheck, lastScore);
+      insightsDiv.textContent = explanation;
+    } catch (err) {
+      console.error(err);
+      insightsDiv.textContent = "Failed to load insights.";
+    }
   });
 });
