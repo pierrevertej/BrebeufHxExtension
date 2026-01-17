@@ -3,8 +3,8 @@
  * Responsibilities: API Calls, Consensus Logic, Security.
  */
 
-const GEMINI_API_KEY = "YOUR_GEMINI_KEY";
-const OPENAI_API_KEY = "YOUR_OPENAI_KEY";
+const GEMINI_API_KEY = "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";
+const OPENAI_API_KEY = "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";
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "factCheck") {
@@ -43,7 +43,7 @@ async function runMultiModelCheck(text) {
 }
 
 async function callGemini(prompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`;
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -57,7 +57,19 @@ async function callGemini(prompt) {
 }
 
 async function callOpenAI(prompt) {
-  // Logic would be similar to Gemini but using OpenAI's endpoint
-  // Replace with your OpenAI fetch logic if using both
-  return { score: 50, verdict: "Simulated OpenAI Result" }; 
+  const url = "https://api.openai.com/v1/chat/completions";
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${OPENAI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" } // Ensures valid JSON response
+    })
+  });
+  const data = await response.json();
+  return JSON.parse(data.choices[0].message.content);
 }
