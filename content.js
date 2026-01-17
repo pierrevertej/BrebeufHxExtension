@@ -55,6 +55,7 @@ document.addEventListener("mouseup", (e) => {
     return;
   }
   const selection = window.getSelection().toString().trim();
+  bubble.dataset.selection = selection;
   
   // Remove bubble if clicking away
   if (!selection) {
@@ -80,20 +81,21 @@ document.addEventListener("mouseup", (e) => {
                       <div id="status-text" class="status"></div>`;
 
   // Trigger Fact Check on Click
-  bubble.onclick = (event) => {
-  event.stopPropagation(); // Prevents the click from "falling through" to the page
-  
-  console.log("Bubble clicked!"); // Check if this appears in the main F12 console
-  
-  chrome.runtime.sendMessage({ action: "factCheck", text: selection }, (response) => {
-    if (chrome.runtime.lastError) {
-      console.error("Connection Error:", chrome.runtime.lastError.message);
-      return;
+ bubble.onclick = (event) => {
+  event.stopPropagation();
+
+  const text = bubble.dataset.selection;
+  chrome.runtime.sendMessage(
+    { action: "factCheck", text },
+    (response) => {
+      if (!response || response.error) {
+        updateUI(100, "Analysis failed");
+        return;
+      }
+      updateUI(response.score, response.verdict);
     }
-    updateUI(response.score, response.verdict);
-  });
+  );
 };
-});
 
 function updateUI(score, verdict) {
   const fill = shadow.getElementById("meter-fill");
