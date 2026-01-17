@@ -2,7 +2,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "factCheckSelection",
-    title: "Fact-Check This Text",
+    title: "Fact-Check This",
     contexts: ["selection"] // only shows when text is selected
   });
 });
