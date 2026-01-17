@@ -19,7 +19,7 @@ style.textContent = `
     border-radius: 12px;
     cursor: pointer;
     font-family: system-ui, -apple-system, sans-serif;
-    z-index: 2147483647;
+    z-index: 2147483649;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     border: 1px solid #ddd;
     width: 180px;
