@@ -3,7 +3,11 @@
   "name": "Text Fact-Checker",
   "version": "1.0",
   "description": "Checks if highlighted text is true or misinforming.",
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["storage", "contextMenus", "scripting", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html"
   },

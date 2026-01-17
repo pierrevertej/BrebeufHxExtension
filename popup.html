@@ -3,66 +3,100 @@
   <head>
     <title>Fact-Checker</title>
     <style>
-  body {
-    font-family: sans-serif;
-    width: 260px;
-    padding: 10px;
-  }
+      body {
+        font-family: sans-serif;
+        width: 260px;
+        padding: 10px;
+      }
 
-  textarea {
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 8px;
-    resize: none;
-  }
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 8px;
+        resize: none;
+      }
 
-  .selection-box {
-    font-size: 12px;
-    color: #555;
-    background: #f4f4f4;
-    border: 1px solid #ddd;
-    padding: 6px;
-    margin-bottom: 8px;
-    border-radius: 4px;
-  }
+      .selection-box {
+        font-size: 12px;
+        color: #555;
+        background: #f4f4f4;
+        border: 1px solid #ddd;
+        padding: 6px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+      }
 
-  .hidden {
-    display: none;
-  }
+      .hidden {
+        display: none;
+      }
 
-  button {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 8px;
-    cursor: pointer;
-  }
+      button {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+      }
 
-  #result {
-    font-weight: bold;
-    text-align: center;
-  }
-</style>
+      #result {
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 6px;
+      }
+
+      /* Accuracy meter */
+      #meter-container {
+        width: 100%;
+        height: 10px;
+        background: #eee;
+        border-radius: 5px;
+        margin-bottom: 8px;
+        overflow: hidden;
+        display: none; /* start hidden */
+      }
+
+      #meter-fill {
+        width: 0%;
+        height: 100%;
+        border-radius: 5px;
+        transition: width 0.5s ease, background 0.5s ease;
+      }
+
+      #insights {
+        font-size: 12px;
+        color: #333;
+        background: #fafafa;
+        border: 1px solid #ddd;
+        padding: 6px;
+        border-radius: 4px;
+      }
+    </style>
   </head>
   <body>
-  <!-- Manual input -->
-  <textarea
-    id="manualInput"
-    placeholder="Type a statement to fact-check"
-    rows="3"
-  ></textarea>
+    <!-- Manual input -->
+    <textarea
+      id="manualInput"
+      placeholder="Type a statement to fact-check"
+      rows="3"
+    ></textarea>
 
-  <!-- Highlighted text (secondary, read-only) -->
-  <div id="selection" class="selection-box hidden"></div>
+    <!-- Highlighted text (secondary, read-only) -->
+    <div id="selection" class="selection-box hidden"></div>
 
-  <!-- Action -->
-  <button id="checkBtn">Fact Check</button>
-  <button id="insightsBtn">Insights</button>
-  <div id="result"></div>
-  <div id="insights" class="hidden"></div>
+    <!-- Action buttons -->
+    <button id="checkBtn">Fact Check</button>
+    <button id="insightsBtn">Insights</button>
 
-  <!-- Result -->
-  <div id="result"></div>
+    <!-- Results -->
+    <div id="result"></div>
 
-  <script src="popup.js"></script>
-</body>
+    <!-- Accuracy meter -->
+    <div id="meter-container">
+      <div id="meter-fill"></div>
+    </div>
+
+    <!-- Insights -->
+    <div id="insights" class="hidden"></div>
+
+    <script src="popup.js"></script>
+  </body>
 </html>

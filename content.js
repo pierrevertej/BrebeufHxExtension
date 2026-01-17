@@ -5,3 +5,4 @@ document.addEventListener("mouseup", () => {
     chrome.storage.session.set({ lastSelection: text });
   }
 });
+
