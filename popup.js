@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const insightsDiv = document.getElementById("insights");
   const meterContainer = document.getElementById("meter-container");
   const meterFill = document.getElementById("meter-fill");
+  const voiceBtn = document.getElementById("voiceBtn");
 
   // State
   let lastScore = null;
@@ -16,6 +17,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Initially disable Insights button
   insightsBtn.disabled = true;
+  voiceBtn.classList.add("hidden");
+  voiceBtn.disabled = true;
 
   // Get highlighted text from the page
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -155,5 +158,43 @@ async function getInsight(sentence, accuracy) {
       console.error(err);
       insightsDiv.textContent = "Failed to load insights.";
     }
+    voiceBtn.classList.remove("hidden");
+    voiceBtn.disabled = false;
   });
+});
+voiceBtn.addEventListener("click", async () => {
+    if (!insightsDiv.textContent) return;
+
+    voiceBtn.disabled = true;
+    voiceBtn.textContent = "Playing...";
+
+    try {
+      const API_KEY = "sk_4aecdfc1033414a9cffea1649a2023a201764f4afbf9662d"; 
+      const VOICE_ID = "8IbUB2LiiCZ85IJAHNnZ";
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "xi-api-key": API_KEY
+        },
+        body: JSON.stringify({
+          text: insightsDiv.textContent,
+          voice_settings: { stability: 0.5, similarity_boost: 0.75 }
+        })
+      });
+
+      const audioBlob = await response.blob();
+      const audioURL = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioURL);
+      audio.play();
+
+      audio.onended = () => {
+        voiceBtn.disabled = false;
+        voiceBtn.textContent = "Listen";
+      };
+    } catch (err) {
+      console.error("TTS error:", err);
+      voiceBtn.disabled = false;
+      voiceBtn.textContent = "Listen";
+    }
 });
