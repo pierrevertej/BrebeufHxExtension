@@ -9,19 +9,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   const meterContainer = document.getElementById("meter-container");
   const meterFill = document.getElementById("meter-fill");
   const voiceBtn = document.getElementById("voiceBtn");
-  const LISTEN_LABEL = "\u{1F50A} Listen";
 
   // State
   let lastScore = null;
   let lastVerdict = null;
   let insightsVisible = false;
 
-  // Initially disable Insights button
+  // Initialize buttons
   insightsBtn.disabled = true;
   voiceBtn.classList.add("hidden");
   voiceBtn.disabled = true;
 
-  // Get highlighted text from the page
+  // Get highlighted text from page
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   chrome.scripting.executeScript(
     { target: { tabId: tab.id }, func: () => window.getSelection().toString().trim() },
@@ -110,35 +109,43 @@ async function getInsight(sentence, accuracy) {
       else meterFill.style.background = "#ea4335"; 
     }
 
+    // Hide previous insights and voice button
     insightsDiv.classList.add("hidden");
+    insightsDiv.textContent = "";
     insightsVisible = false;
+    voiceBtn.classList.add("hidden");
+    voiceBtn.disabled = true;
 
     return true;
 
-  } catch (err) {
+    } catch (err) {
     console.error(err);
     resultDiv.textContent = "Backend error. Is Flask running?";
     return false;
+    }
   }
-}
 
+  function resetMeter() {
+    meterContainer.classList.add("hidden");
+    meterFill.style.width = "0%";
+  }
 
-  // Fact Check button
   checkBtn.addEventListener("click", () => runFactCheck());
 
-  // Insights button (toggleable, auto-Fact Check if needed)
+  // ------------------ Insights Button ------------------
   insightsBtn.addEventListener("click", async () => {
     if (insightsVisible) {
       // Toggle off
       insightsDiv.classList.add("hidden");
       insightsVisible = false;
+      voiceBtn.classList.add("hidden");
       return;
     }
 
     // Run Fact Check first if not run yet
     if (lastScore === null) {
       const success = await runFactCheck();
-      if (!success) return; // no text entered
+      if (!success) return;
     }
 
     // Show analyzing message in Insights
@@ -146,12 +153,12 @@ async function getInsight(sentence, accuracy) {
     insightsDiv.classList.remove("hidden");
     insightsVisible = true;
 
-    // Allow browser to render "Analyzing…"
+    // Allow browser to render
     await new Promise(r => setTimeout(r, 100));
 
-    // MOCK explanation based on score
     const textToCheck = selectionDiv.dataset.selection || manualInput.value.trim();
 
+    // MOCK explanation
     try {
       const explanation = await getInsight(textToCheck, lastScore);
       insightsDiv.textContent = explanation;
@@ -159,67 +166,47 @@ async function getInsight(sentence, accuracy) {
       console.error(err);
       insightsDiv.textContent = "Failed to load insights.";
     }
+
+    // Show and enable voice button
     voiceBtn.classList.remove("hidden");
     voiceBtn.disabled = false;
   });
-    const audioPlayer = document.getElementById("ttsPlayer");
 
-voiceBtn.addEventListener("click", async () => {
-  if (!insightsDiv.textContent) return;
+  // ------------------ Voice Button ------------------
+  voiceBtn.addEventListener("click", async () => {
+    if (!insightsDiv.textContent) return;
 
-  voiceBtn.disabled = true;
-  voiceBtn.textContent = "Playing...";
-  voiceBtn.textContent = LISTEN_LABEL;
+    voiceBtn.disabled = true;
+    voiceBtn.textContent = "Playing...";
 
-  try {
-    const API_KEY = "YOUR_ELEVENLABS_KEY";
-    const VOICE_ID = "8IbUB2LiiCZ85IJAHNnZ";
-
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
-      {
+    try {
+      const API_KEY = "sk_4aecdfc1033414a9cffea1649a2023a201764f4afbf9662d"; 
+      const VOICE_ID = "8IbUB2LiiCZ85IJAHNnZ";
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "audio/mpeg",
           "xi-api-key": API_KEY
         },
         body: JSON.stringify({
           text: insightsDiv.textContent,
-          model_id: "eleven_monolingual_v1",
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.75
-          }
+          voice_settings: { stability: 0.5, similarity_boost: 0.75 }
         })
-      }
-    );
+      });
 
-    if (!response.ok) {
-      throw new Error(await response.text());
-    }
+      const audioBlob = await response.blob();
+      const audioURL = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioURL);
+      audio.play();
 
-    const audioBlob = await response.blob();
-
-    if (audioBlob.size < 1000) {
-      throw new Error("Invalid audio received");
-    }
-
-    const audioURL = URL.createObjectURL(audioBlob);
-
-    audioPlayer.src = audioURL;
-    audioPlayer.onended = () => {
+      audio.onended = () => {
+        voiceBtn.disabled = false;
+        voiceBtn.textContent = "Listen";
+      };
+    } catch (err) {
+      console.error("TTS error:", err);
       voiceBtn.disabled = false;
-      voiceBtn.textContent = LISTEN_LABEL;
-      URL.revokeObjectURL(audioURL);
-    };
-
-    await audioPlayer.play();
-
-  } catch (err) {
-    console.error("TTS failed:", err);
-    voiceBtn.disabled = false;
-    voiceBtn.textContent = LISTEN_LABEL;
-  }
-});
+      voiceBtn.textContent = "Listen";
+    }
+  });
 });
