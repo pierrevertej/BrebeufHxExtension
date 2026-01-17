@@ -39,6 +39,12 @@ style.textContent = `
   }
   .label { font-size: 12px; font-weight: bold; }
   .status { font-size: 10px; color: #666; }
+  #fact-check-extension-container {
+  pointer-events: none; /* Let clicks pass through the container... */
+  }
+  #bubble {
+  pointer-events: auto; /* ...but stop at the bubble itself! */
+  }
 `;
 shadow.appendChild(style);
 document.body.appendChild(container);
